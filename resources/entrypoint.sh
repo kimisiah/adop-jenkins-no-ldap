@@ -20,6 +20,14 @@ sed -i "s,###SCM_PROVIDER_PROPERTIES_PATH###,$PLUGGABLE_SCM_PROVIDER_PROPERTIES_
 echo "skip upgrade wizard step after installation"
 echo "2.7.4" > /var/jenkins_home/jenkins.install.UpgradeWizard.state
 
+rm -f /usr/share/jenkins/init.groovy.d/*based_auth.groovy
+
+if $ADOP_LDAP_ENABLED ; then 
+   cp /usr/share/jenkins/authStrategy/role_based_auth.groovy /usr/share/jenkins/ref/init.groovy.d/
+else
+   cp /usr/share/jenkins/authStrategy/basic_security_based_auth.groovy /usr/share/jenkins/ref/init.groovy.d/
+fi
+
 echo "start JENKINS"
 
 chown -R 1000:1000 /var/jenkins_home

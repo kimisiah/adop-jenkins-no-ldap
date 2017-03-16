@@ -11,6 +11,7 @@ ENV GERRIT_PROFILE="ADOP Gerrit" GERRIT_JENKINS_USERNAME="" GERRIT_JENKINS_PASSW
 # Copy in configuration files
 COPY resources/plugins.txt /usr/share/jenkins/ref/
 COPY resources/init.groovy.d/ /usr/share/jenkins/ref/init.groovy.d/
+COPY resources/authStrategy/ /usr/share/jenkins/authStrategy/
 COPY resources/scripts/ /usr/share/jenkins/ref/adop_scripts/
 COPY resources/jobs/ /usr/share/jenkins/ref/jobs/
 COPY resources/scriptler/ /usr/share/jenkins/ref/scriptler/scripts/
