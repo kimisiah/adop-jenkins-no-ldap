@@ -21,6 +21,7 @@ echo "skip upgrade wizard step after installation"
 echo "2.7.4" > /var/jenkins_home/jenkins.install.UpgradeWizard.state
 
 rm -f /usr/share/jenkins/init.groovy.d/*based_auth.groovy
+rm -f $JENKINS_HOME/init.groovy.d/*based_auth.groovy
 
 if $ADOP_LDAP_ENABLED ; then 
    cp /usr/share/jenkins/authStrategy/role_based_auth.groovy /usr/share/jenkins/ref/init.groovy.d/
