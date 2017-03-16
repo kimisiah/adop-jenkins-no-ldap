@@ -16,6 +16,7 @@ instance.setSecurityRealm(hudsonRealm)
 
 def strategy = new hudson.security.GlobalMatrixAuthorizationStrategy()
 strategy.add(Jenkins.ADMINISTER,adminUser)
+strategy.add(Jenkins.ADMINISTER,'authenticated')
 instance.setAuthorizationStrategy(strategy)
 
 instance.save()

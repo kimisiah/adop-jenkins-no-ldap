@@ -1,0 +1,25 @@
+jenkins:
+  container_name: jeanbean-jenkins
+  restart: always
+  image: jeanbean-jenkins-master:2.7.4
+  #build: ../images/docker-jenkins/
+  #net: ${CUSTOM_NETWORK_NAME}
+  expose:
+    - "50000"
+  ports:
+    - "8080:8080"
+  privileged: true
+  environment:
+    ADOP_LDAP_ENABLED: "false"
+    ADOP_SONAR_ENABLED: "false"
+    ADOP_ANT_ENABLED: "false"
+    ADOP_MAVEN_ENABLED: "false"
+    ADOP_NODEJS_ENABLED: "false"
+    ADOP_GERRIT_ENABLED: "false"
+    INITIAL_ADMIN_USER: "jeanbean-admin"
+    INITIAL_ADMIN_PASSWORD: "p@ssw0rd"
+  volumes:
+    - jenkins_users:/var/jenkins_home/users
+    - jenkins_plugins:/var/jenkins_home/plugins
+    - jenkins_jobs:/var/jenkins_home/jobs
+    - jenkins_ssh:/var/jenkins_home/.ssh
