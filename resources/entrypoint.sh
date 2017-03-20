@@ -24,9 +24,9 @@ rm -f /usr/share/jenkins/init.groovy.d/*based_auth.groovy
 rm -f $JENKINS_HOME/init.groovy.d/*based_auth.groovy
 
 if $ADOP_LDAP_ENABLED ; then 
-   cp /usr/share/jenkins/authStrategy/role_based_auth.groovy /usr/share/jenkins/ref/init.groovy.d/
+   cp /usr/share/jenkins/authStrategy/role_based_auth.groovy.ldap /usr/share/jenkins/ref/init.groovy.d/role_based_auth.groovy
 else
-   cp /usr/share/jenkins/authStrategy/basic_security_based_auth.groovy /usr/share/jenkins/ref/init.groovy.d/
+   cp /usr/share/jenkins/authStrategy/role_based_auth.groovy /usr/share/jenkins/ref/init.groovy.d/role_based_auth.groovy
 fi
 
 echo "start JENKINS"

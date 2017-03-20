@@ -12,11 +12,7 @@ def env = System.getenv()
 // Roles
 def globalRoleRead = "read"
 def globalRoleAdmin = "admin"
-def globalRoleDeploymentAdmin = "deployment-admin"
-def globalRoleDeployment = "deployment"
-
-def adminUser = env['INITIAL_ADMIN_USER']
-def adminPassword = env['INITIAL_ADMIN_PASSWORD']
+def ldapGroupNameAdmin = env['LDAP_GROUP_NAME_ADMIN'] ?: "administrators"
 
 def jenkinsInstance = Jenkins.getInstance()
 def currentAuthenticationStrategy = Hudson.instance.getAuthorizationStrategy()
@@ -34,13 +30,6 @@ Thread.start {
     // Set new authentication strategy
     RoleBasedAuthorizationStrategy roleBasedAuthenticationStrategy = new RoleBasedAuthorizationStrategy()
     jenkinsInstance.setAuthorizationStrategy(roleBasedAuthenticationStrategy)
-
-    // Create default Admin
-    println "--> creating local user 'admin'"
-
-    def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-    hudsonRealm.createAccount(adminUser,adminPassword)
-    jenkinsInstance.setSecurityRealm(hudsonRealm)
 
     Constructor[] constrs = Role.class.getConstructors();
     for (Constructor<?> c : constrs) {
@@ -88,59 +77,15 @@ Thread.start {
     adminPermissions.add(Permission.fromId("hudson.model.Computer.Disconnect"));
     adminPermissions.add(Permission.fromId("hudson.model.Run.Update"));
 
-    // Create deployment-admin permission
-    Set<Permission> deploymentAdminPermissions = new HashSet<Permission>();
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.View.Delete"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Computer.Connect"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Run.Delete"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Computer.Create"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Computer.Build"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Configure"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Cancel"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Read"));
-    deploymentAdminPermissions.add(Permission.fromId("com.cloudbees.plugins.credentials.CredentialsProvider.View"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Computer.Delete"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Build"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.scm.SCM.Tag"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Discover"));
-    deploymentAdminPermissions.add(Permission.fromId("com.cloudbees.plugins.credentials.CredentialsProvider.Update"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Create"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Move"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Workspace"));
-    deploymentAdminPermissions.add(Permission.fromId("com.cloudbees.plugins.credentials.CredentialsProvider.Delete"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.View.Read"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.View.Create"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.View.Configure"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Item.Delete"));
-    deploymentAdminPermissions.add(Permission.fromId("com.cloudbees.plugins.credentials.CredentialsProvider.Create"));
-    deploymentAdminPermissions.add(Permission.fromId("hudson.model.Run.Update"));
-
-    // Create deployment set of permissions
-    Set<Permission> deploymentPermissions = new HashSet<Permission>();
-    deploymentPermissions.add(Permission.fromId("hudson.model.Item.Build"));
-
     // Create the admin Role
     Role adminRole = new Role(globalRoleAdmin, adminPermissions);
     roleBasedAuthenticationStrategy.addRole(RoleBasedAuthorizationStrategy.GLOBAL, adminRole);
 
-    // Create the deployment-admin Role
-    Role deploymentAdminRole = new Role(globalRoleDeploymentAdmin, deploymentAdminPermissions);
-    roleBasedAuthenticationStrategy.addRole(RoleBasedAuthorizationStrategy.GLOBAL, deploymentAdminRole);
-
-    // Create the deployment Role
-    Role deploymentRole = new Role(globalRoleDeployment, deploymentPermissions);
-    roleBasedAuthenticationStrategy.addRole(RoleBasedAuthorizationStrategy.GLOBAL, deploymentRole);
-
     // Assign the role
-    roleBasedAuthenticationStrategy.assignRole(RoleBasedAuthorizationStrategy.GLOBAL, adminRole, adminUser);
+    roleBasedAuthenticationStrategy.assignRole(RoleBasedAuthorizationStrategy.GLOBAL, adminRole, ldapGroupNameAdmin);
     println "Admin role created...OK"
 
-    roleBasedAuthenticationStrategy.assignRole(RoleBasedAuthorizationStrategy.GLOBAL, deploymentAdminRole, adminUser);
-    println "Deployment Admin role created...OK"
-
-    roleBasedAuthenticationStrategy.assignRole(RoleBasedAuthorizationStrategy.GLOBAL, deploymentRole, adminUser);
-    println "Deployment role created...OK"
-
+    /// Read access for authenticated users
     // Create permissions
     Set<Permission> authenticatedPermissions = new HashSet<Permission>();
     authenticatedPermissions.add(Permission.fromId("hudson.model.Hudson.Read"));
