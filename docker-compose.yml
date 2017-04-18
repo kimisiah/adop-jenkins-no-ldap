@@ -8,6 +8,7 @@ jenkins:
     - "50000"
   ports:
     - "8080:8080"
+    - "8443:8443"
   privileged: true
   environment:
     ADOP_LDAP_ENABLED: "false"
@@ -18,8 +19,11 @@ jenkins:
     ADOP_GERRIT_ENABLED: "false"
     INITIAL_ADMIN_USER: "jeanbean-admin"
     INITIAL_ADMIN_PASSWORD: "p@ssw0rd"
+    JENKINS_OPTS: "--prefix=/jenkins -Djenkins.install.runSetupWizard=false --httpsPort=8443 --httpsKeyStore=/var/jenkins_home/secrets/keystore --httpsKeyStorePassword=p@ssw0rd"
   volumes:
     - jenkins_users:/var/jenkins_home/users
     - jenkins_plugins:/var/jenkins_home/plugins
     - jenkins_jobs:/var/jenkins_home/jobs
     - jenkins_ssh:/var/jenkins_home/.ssh
+    - jenkins_secrets:/var/jenkins_home/secrets
+    - jenkins_auth:/var/jenkins_home/configs
